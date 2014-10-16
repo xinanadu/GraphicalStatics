@@ -2,13 +2,16 @@ package info.zhegui.graphicalstatics;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.AttributeSet;
 
 public class StatisticsOnCanvas extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.statistics_on_canvas);
+		GraphicalView view = new GraphicalView(this, null);
+		view.setUnit("£®∑÷÷”£©");
+		setContentView(view);
 	}
 
 	@Override
