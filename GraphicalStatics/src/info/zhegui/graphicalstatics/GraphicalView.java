@@ -32,6 +32,15 @@ class GraphicalView extends SurfaceView implements SurfaceHolder.Callback {
 		private final int MARGIN_X = 50;
 		private final int MARGIN_Y = 50;
 
+		private final int INTERVAL_VERTICAL = 50;
+		private final int INTERVAL_HORIZONTAL = 80;
+		// 竖直单位字体宽度
+		private final int UNIT_VERTICAL_FONT_WIDTH = 20;
+		// 水平单位字体宽度
+		private final int UNIT_HORIONTAL_FONT_WIDTH = 50;
+		// 单位字体高度
+		private final int UNIT_FONT_HEIGHT = 20;
+
 		public LunarThread(SurfaceHolder surfaceHolder, Context context,
 				Handler handler) {
 			log("LunarThread()");
@@ -73,13 +82,6 @@ class GraphicalView extends SurfaceView implements SurfaceHolder.Callback {
 			log("doDrawGrid(" + canvas + ")");
 			canvas.drawColor(Color.parseColor("#ff69736D"));
 
-			final int INTERVAL_VERTICAL = 50;
-			final int INTERVAL_HORIZONTAL = 80;
-			// 竖直单位字体宽度
-			final int UNIT_VERTICAL_FONT_WIDTH = 20;
-			// 水平单位字体宽度
-			final int UNIT_HORIONTAL_FONT_WIDTH = 50;
-
 			Paint paintText = new Paint();
 			paintText.setLinearText(true);
 			paintText.setColor(Color.parseColor("#cccccccc"));
@@ -94,17 +96,21 @@ class GraphicalView extends SurfaceView implements SurfaceHolder.Callback {
 				if (count == 0) {
 					canvas.drawText(mUnit, SCREEN_WIDTH - MARGIN_X
 							- UNIT_HORIONTAL_FONT_WIDTH, SCREEN_HEIGHT
-							- MARGIN_Y, paintText);
+							- MARGIN_Y - UNIT_FONT_HEIGHT, paintText);
 				}
 
-				canvas.drawLine(MARGIN_X + UNIT_VERTICAL_FONT_WIDTH,
-						SCREEN_HEIGHT - MARGIN_Y - INTERVAL_VERTICAL * count,
-						SCREEN_WIDTH - MARGIN_X - UNIT_HORIONTAL_FONT_WIDTH,
-						SCREEN_HEIGHT - MARGIN_Y - INTERVAL_VERTICAL * count,
+				int startX = MARGIN_X + UNIT_VERTICAL_FONT_WIDTH;
+				int stopX = SCREEN_WIDTH - MARGIN_X - UNIT_HORIONTAL_FONT_WIDTH;
+				int startY = SCREEN_HEIGHT - MARGIN_Y - UNIT_FONT_HEIGHT
+						- INTERVAL_VERTICAL * count;
+				int stopY = SCREEN_HEIGHT - MARGIN_Y - UNIT_FONT_HEIGHT
+						- INTERVAL_VERTICAL * count;
+				canvas.drawLine(startX, startY, stopX, stopY,
 						paintlineHorizontal);
 
 				canvas.drawText(count + "", MARGIN_X, SCREEN_HEIGHT - MARGIN_Y
-						- INTERVAL_VERTICAL * count, paintText);
+						- INTERVAL_VERTICAL * count - UNIT_FONT_HEIGHT,
+						paintText);
 			}
 
 			// 竖直线
@@ -117,21 +123,45 @@ class GraphicalView extends SurfaceView implements SurfaceHolder.Callback {
 							new float[] { 3, 5 }, 0));
 				} else {
 					canvas.drawText("（元）", MARGIN_X, MARGIN_Y
-							- UNIT_VERTICAL_FONT_WIDTH, paintText);
+							- UNIT_VERTICAL_FONT_WIDTH + UNIT_FONT_HEIGHT,
+							paintText);
 				}
 
-				canvas.drawLine(MARGIN_X + UNIT_VERTICAL_FONT_WIDTH
-						+ INTERVAL_HORIZONTAL * count, MARGIN_Y, MARGIN_X
-						+ UNIT_VERTICAL_FONT_WIDTH + INTERVAL_HORIZONTAL
-						* count, SCREEN_HEIGHT - MARGIN_Y, paintlineVertical);
+				int startX = MARGIN_X + UNIT_VERTICAL_FONT_WIDTH
+						+ INTERVAL_HORIZONTAL * count;
+				int stopX = MARGIN_X + UNIT_VERTICAL_FONT_WIDTH
+						+ INTERVAL_HORIZONTAL * count;
+				int startY = MARGIN_Y + UNIT_FONT_HEIGHT;
+				int stopY = SCREEN_HEIGHT - MARGIN_Y - UNIT_FONT_HEIGHT;
+				canvas.drawLine(startX, startY, stopX, stopY, paintlineVertical);
 			}
 		}
 
 		private void doDrawBar(Canvas canvas) {
-			// Paint paintBar = new Paint();
-			// paintBar.setColor(Color.parseColor("#53BA2C"));
-			// canvas.drawRect(MARGIN_X + 10, MARGIN_Y, MARGIN_X + 30,
-			// MARGIN_Y + 300, paintBar);
+			Paint paintBar = new Paint();
+			paintBar.setColor(Color.parseColor("#53BA2C"));
+			int barWidth = INTERVAL_HORIZONTAL / 2;
+
+			Paint paintText = new Paint();
+			paintText.setLinearText(true);
+			paintText.setColor(Color.parseColor("#cccccccc"));
+			paintText.setAntiAlias(true);
+			paintText.setStrokeWidth(3);
+			paintText.setTextSize(16);
+
+			for (int count = 0; count < 5 - 1; count++) {
+				int startX = MARGIN_X + UNIT_VERTICAL_FONT_WIDTH
+						+ INTERVAL_HORIZONTAL / 4 + INTERVAL_HORIZONTAL * count;
+				int stopX = MARGIN_X + UNIT_VERTICAL_FONT_WIDTH
+						+ INTERVAL_HORIZONTAL / 4 + INTERVAL_HORIZONTAL * count
+						+ barWidth;
+				int startY = 300;
+				int stopY = SCREEN_HEIGHT - MARGIN_Y - UNIT_FONT_HEIGHT;
+				canvas.drawRect(startX, startY, stopX, stopY, paintBar);
+
+				canvas.drawText("300", startX, stopY + UNIT_FONT_HEIGHT,
+						paintText);
+			}
 		}
 
 		public void setUnit(String unit) {
