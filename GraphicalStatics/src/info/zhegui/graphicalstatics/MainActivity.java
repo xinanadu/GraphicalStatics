@@ -48,14 +48,14 @@ public class MainActivity extends Activity {
 
 		mListView = (ListView) findViewById(R.id.listView1);
 
-		listMsg.add(new Message("1ÔÂ·İ",10, ""));
-		listMsg.add(new Message("2ÔÂ·İ",20, ""));
-		listMsg.add(new Message("3ÔÂ·İ",300, ""));
-		listMsg.add(new Message("4ÔÂ·İ",40, ""));
-		listMsg.add(new Message("5ÔÂ·İ",500, ""));
-		listMsg.add(new Message("6ÔÂ·İ",60, ""));
-		listMsg.add(new Message("7ÔÂ·İ",70000, ""));
-		listMsg.add(new Message("8ÔÂ·İ",9000000, ""));
+		listMsg.add(new Message("1æœˆä»½",10, ""));
+		listMsg.add(new Message("2æœˆä»½",20, ""));
+		listMsg.add(new Message("3æœˆä»½",300, ""));
+		listMsg.add(new Message("4æœˆä»½",40, ""));
+		listMsg.add(new Message("5æœˆä»½",500, ""));
+		listMsg.add(new Message("6æœˆä»½",60, ""));
+		listMsg.add(new Message("7æœˆä»½",70000, ""));
+		listMsg.add(new Message("8æœˆä»½",9000000, ""));
 
 		mDisplayMetrics = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(mDisplayMetrics);
@@ -125,7 +125,7 @@ public class MainActivity extends Activity {
 
 			Message msg = listMsg.get(position);
 			holder.tvType.setText(msg.type);
-			holder.tvName.setText("£¤" + msg.number);
+			holder.tvName.setText("ï¿¥" + msg.number);
 
 			int newWidth = (int) (msg.number * rate);
 			LayoutParams params = new LayoutParams(newWidth < 2 ? 2 : newWidth, 50);

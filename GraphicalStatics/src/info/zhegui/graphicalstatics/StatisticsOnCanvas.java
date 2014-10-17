@@ -25,7 +25,7 @@ public class StatisticsOnCanvas extends Activity {
 		listData.add(new StatisticsMessage("11", 9000));
 		listData.add(new StatisticsMessage("12", 0));
 
-		GraphicalView view = new GraphicalView(this, null, "£¨ÔÂ£©", listData);
+		GraphicalView view = new GraphicalView(this, null, "ï¼ˆæœˆï¼‰", listData);
 		setContentView(view);
 	}
 

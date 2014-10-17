@@ -41,17 +41,17 @@ class GraphicalView extends SurfaceView implements SurfaceHolder.Callback {
 
 		private int INTERVAL_VERTICAL = 50;
 		private int INTERVAL_HORIZONTAL = 80;
-		// ÊúÖ±µ¥Î»×ÖÌå¿í¶È
+		// ç«–ç›´å•ä½å­—ä½“å®½åº¦
 		private final int UNIT_VERTICAL_FONT_WIDTH = 50;
-		// Ë®Æ½µ¥Î»×ÖÌå¿í¶È
+		// æ°´å¹³å•ä½å­—ä½“å®½åº¦
 		private final int UNIT_HORIONTAL_FONT_WIDTH = 50;
-		// µ¥Î»×ÖÌå¸ß¶È
+		// å•ä½å­—ä½“é«˜åº¦
 		private final int UNIT_FONT_HEIGHT = 20;
-		// Ğ£ÕıÌõÉÏÃæµÄÊı×ÖµÄÎ»ÖÃy
+		// æ ¡æ­£æ¡ä¸Šé¢çš„æ•°å­—çš„ä½ç½®y
 		private final int UNIT_FONT_HEIGHT_FIX = 5;
-		// ÊúÖ±×î´ó¿Ì¶È
+		// ç«–ç›´æœ€å¤§åˆ»åº¦
 		private int mIntervalVerticalScale;
-		// ÊıÖµ*mRate¼´Îª¸ÃÍ¼ÌõµÄ»æÖÆ¸ß¶È
+		// æ•°å€¼*mRateå³ä¸ºè¯¥å›¾æ¡çš„ç»˜åˆ¶é«˜åº¦
 		private double mRate;
 
 		Paint mPaintText = new Paint();
@@ -83,7 +83,7 @@ class GraphicalView extends SurfaceView implements SurfaceHolder.Callback {
 					- UNIT_HORIONTAL_FONT_WIDTH - UNIT_VERTICAL_FONT_WIDTH)
 					/ listData.size();
 
-			// »ñÈ¡rate-------------------------------------------
+			// è·å–rate-------------------------------------------
 			int maxNumber = 0;
 			for (StatisticsMessage msg : listData) {
 				if (maxNumber < msg.number) {
@@ -91,7 +91,7 @@ class GraphicalView extends SurfaceView implements SurfaceHolder.Callback {
 				}
 			}
 
-			// »ñÈ¡ÊúÖ±¿Ì¶È¼ä¸ô
+			// è·å–ç«–ç›´åˆ»åº¦é—´éš”
 			mIntervalVerticalScale = getIntervaleVerticalScale(maxNumber);
 			mRate = (SCREEN_HEIGHT - UNIT_FONT_HEIGHT * 2 - MARGIN_Y * 2)
 					* (HORIZONTAL_LINE_COUNT - 1)
@@ -119,7 +119,7 @@ class GraphicalView extends SurfaceView implements SurfaceHolder.Callback {
 			log("doDrawGrid(" + canvas + ")");
 			canvas.drawColor(Color.parseColor("#ff69736D"));
 
-			// Ë®Æ½Ïß
+			// æ°´å¹³çº¿
 			Paint paintlineHorizontal = new Paint();
 			paintlineHorizontal.setColor(Color.parseColor("#66cccccc"));
 			mPaintText.setTextAlign(Align.RIGHT);
@@ -145,7 +145,7 @@ class GraphicalView extends SurfaceView implements SurfaceHolder.Callback {
 						- UNIT_FONT_HEIGHT, mPaintText);
 			}
 
-			// ÊúÖ±Ïß
+			// ç«–ç›´çº¿
 			Paint paintlineVertical = new Paint();
 			paintlineVertical.setStyle(Style.STROKE);
 			paintlineVertical.setColor(Color.parseColor("#66cccccc"));
@@ -155,7 +155,7 @@ class GraphicalView extends SurfaceView implements SurfaceHolder.Callback {
 					paintlineVertical.setPathEffect(new DashPathEffect(
 							new float[] { 3, 5 }, 0));
 				} else {
-					canvas.drawText("£¨Ôª£©", MARGIN_X + UNIT_VERTICAL_FONT_WIDTH,
+					canvas.drawText("ï¼ˆå…ƒï¼‰", MARGIN_X + UNIT_VERTICAL_FONT_WIDTH,
 							MARGIN_Y + UNIT_FONT_HEIGHT - UNIT_FONT_HEIGHT_FIX,
 							mPaintText);
 				}
