@@ -82,6 +82,9 @@ class GraphicalView extends SurfaceView implements SurfaceHolder.Callback {
 			INTERVAL_HORIZONTAL = (SCREEN_WIDTH - MARGIN_X * 2
 					- UNIT_HORIONTAL_FONT_WIDTH - UNIT_VERTICAL_FONT_WIDTH)
 					/ listData.size();
+			
+			INTERVAL_VERTICAL = (SCREEN_HEIGHT - MARGIN_Y * 2 - UNIT_FONT_HEIGHT * 2)
+					/ HORIZONTAL_LINE_COUNT;
 
 			// 获取rate-------------------------------------------
 			int maxNumber = 0;
