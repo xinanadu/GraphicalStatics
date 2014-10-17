@@ -1,12 +1,16 @@
 package info.zhegui.graphicalstatics;
 
+import java.util.LinkedList;
+
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
+import android.graphics.Paint.Align;
 import android.graphics.Paint.Style;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
@@ -26,33 +30,47 @@ class GraphicalView extends SurfaceView implements SurfaceHolder.Callback {
 		/** Handle to the application context, used to e.g. fetch Drawables. */
 		private Context mContext;
 		private String mUnit;
+		LinkedList<StatisticsMessage> listData = new LinkedList<StatisticsMessage>();
 
 		private int SCREEN_WIDTH = 600;
 		private int SCREEN_HEIGHT = 400;
 		private final int MARGIN_X = 50;
 		private final int MARGIN_Y = 50;
 
-		private final int INTERVAL_VERTICAL = 50;
-		private final int INTERVAL_HORIZONTAL = 80;
+		private final int HORIZONTAL_LINE_COUNT = 6;
+
+		private int INTERVAL_VERTICAL = 50;
+		private int INTERVAL_HORIZONTAL = 80;
 		// 竖直单位字体宽度
-		private final int UNIT_VERTICAL_FONT_WIDTH = 20;
+		private final int UNIT_VERTICAL_FONT_WIDTH = 50;
 		// 水平单位字体宽度
 		private final int UNIT_HORIONTAL_FONT_WIDTH = 50;
 		// 单位字体高度
 		private final int UNIT_FONT_HEIGHT = 20;
+		// 校正条上面的数字的位置y
+		private final int UNIT_FONT_HEIGHT_FIX = 5;
+		// 竖直最大刻度
+		private int mIntervalVerticalScale;
+		// 数值*mRate即为该图条的绘制高度
+		private double mRate;
+
+		Paint mPaintText = new Paint();
 
 		public LunarThread(SurfaceHolder surfaceHolder, Context context,
+				String unit, LinkedList<StatisticsMessage> listData,
 				Handler handler) {
-			log("LunarThread()");
+			// log("LunarThread()");
 			mSurfaceHolder = surfaceHolder;
 			mHandler = handler;
 			mContext = context;
+			mUnit = unit;
+			this.listData = listData;
 
-			// DisplayMetrics dm = new DisplayMetrics();
-			// ((Activity) context).getWindowManager().getDefaultDisplay()
-			// .getMetrics(dm);
-			// SCREEN_HEIGHT = dm.heightPixels;
-			// SCREEN_WIDTH = dm.widthPixels;
+			mPaintText.setLinearText(true);
+			mPaintText.setColor(Color.parseColor("#cccccccc"));
+			mPaintText.setAntiAlias(true);
+			mPaintText.setStrokeWidth(3);
+			mPaintText.setTextSize(16);
 		}
 
 		@Override
@@ -60,6 +78,25 @@ class GraphicalView extends SurfaceView implements SurfaceHolder.Callback {
 
 			SCREEN_HEIGHT = mSurfaceHolder.getSurfaceFrame().height();
 			SCREEN_WIDTH = mSurfaceHolder.getSurfaceFrame().width();
+
+			INTERVAL_HORIZONTAL = (SCREEN_WIDTH - MARGIN_X * 2
+					- UNIT_HORIONTAL_FONT_WIDTH - UNIT_VERTICAL_FONT_WIDTH)
+					/ listData.size();
+
+			// 获取rate-------------------------------------------
+			int maxNumber = 0;
+			for (StatisticsMessage msg : listData) {
+				if (maxNumber < msg.number) {
+					maxNumber = msg.number;
+				}
+			}
+
+			// 获取竖直刻度间隔
+			mIntervalVerticalScale = getIntervaleVerticalScale(maxNumber);
+			mRate = (SCREEN_HEIGHT - UNIT_FONT_HEIGHT * 2 - MARGIN_Y * 2)
+					* (HORIZONTAL_LINE_COUNT - 1)
+					/ HORIZONTAL_LINE_COUNT
+					/ (mIntervalVerticalScale * (HORIZONTAL_LINE_COUNT - 1) * 1.00);
 
 			Canvas c = null;
 			try {
@@ -82,21 +119,15 @@ class GraphicalView extends SurfaceView implements SurfaceHolder.Callback {
 			log("doDrawGrid(" + canvas + ")");
 			canvas.drawColor(Color.parseColor("#ff69736D"));
 
-			Paint paintText = new Paint();
-			paintText.setLinearText(true);
-			paintText.setColor(Color.parseColor("#cccccccc"));
-			paintText.setAntiAlias(true);
-			paintText.setStrokeWidth(3);
-			paintText.setTextSize(16);
-
 			// 水平线
 			Paint paintlineHorizontal = new Paint();
 			paintlineHorizontal.setColor(Color.parseColor("#66cccccc"));
-			for (int count = 0; count < 5; count++) {
+			mPaintText.setTextAlign(Align.RIGHT);
+			for (int count = 0; count < HORIZONTAL_LINE_COUNT; count++) {
 				if (count == 0) {
-					canvas.drawText(mUnit, SCREEN_WIDTH - MARGIN_X
-							- UNIT_HORIONTAL_FONT_WIDTH, SCREEN_HEIGHT
-							- MARGIN_Y - UNIT_FONT_HEIGHT, paintText);
+					canvas.drawText(mUnit, SCREEN_WIDTH - MARGIN_X,
+							SCREEN_HEIGHT - MARGIN_Y - UNIT_FONT_HEIGHT,
+							mPaintText);
 				}
 
 				int startX = MARGIN_X + UNIT_VERTICAL_FONT_WIDTH;
@@ -108,23 +139,25 @@ class GraphicalView extends SurfaceView implements SurfaceHolder.Callback {
 				canvas.drawLine(startX, startY, stopX, stopY,
 						paintlineHorizontal);
 
-				canvas.drawText(count + "", MARGIN_X, SCREEN_HEIGHT - MARGIN_Y
-						- INTERVAL_VERTICAL * count - UNIT_FONT_HEIGHT,
-						paintText);
+				int scale = mIntervalVerticalScale * count;
+				canvas.drawText(scale + "", startX - 3, SCREEN_HEIGHT
+						- MARGIN_Y - INTERVAL_VERTICAL * count
+						- UNIT_FONT_HEIGHT, mPaintText);
 			}
 
 			// 竖直线
 			Paint paintlineVertical = new Paint();
 			paintlineVertical.setStyle(Style.STROKE);
 			paintlineVertical.setColor(Color.parseColor("#66cccccc"));
-			for (int count = 0; count < 5; count++) {
+			mPaintText.setTextAlign(Align.CENTER);
+			for (int count = 0; count < listData.size() + 1; count++) {
 				if (count > 0) {
 					paintlineVertical.setPathEffect(new DashPathEffect(
 							new float[] { 3, 5 }, 0));
 				} else {
-					canvas.drawText("（元）", MARGIN_X, MARGIN_Y
-							- UNIT_VERTICAL_FONT_WIDTH + UNIT_FONT_HEIGHT,
-							paintText);
+					canvas.drawText("（元）", MARGIN_X + UNIT_VERTICAL_FONT_WIDTH,
+							MARGIN_Y + UNIT_FONT_HEIGHT - UNIT_FONT_HEIGHT_FIX,
+							mPaintText);
 				}
 
 				int startX = MARGIN_X + UNIT_VERTICAL_FONT_WIDTH
@@ -142,32 +175,45 @@ class GraphicalView extends SurfaceView implements SurfaceHolder.Callback {
 			paintBar.setColor(Color.parseColor("#53BA2C"));
 			int barWidth = INTERVAL_HORIZONTAL / 2;
 
-			Paint paintText = new Paint();
-			paintText.setLinearText(true);
-			paintText.setColor(Color.parseColor("#cccccccc"));
-			paintText.setAntiAlias(true);
-			paintText.setStrokeWidth(3);
-			paintText.setTextSize(16);
-
-			for (int count = 0; count < 5 - 1; count++) {
+			mPaintText.setTextAlign(Align.CENTER);
+			for (int count = 0; count < listData.size(); count++) {
 				int startX = MARGIN_X + UNIT_VERTICAL_FONT_WIDTH
 						+ INTERVAL_HORIZONTAL / 4 + INTERVAL_HORIZONTAL * count;
 				int stopX = MARGIN_X + UNIT_VERTICAL_FONT_WIDTH
 						+ INTERVAL_HORIZONTAL / 4 + INTERVAL_HORIZONTAL * count
 						+ barWidth;
-				int startY = 300;
 				int stopY = SCREEN_HEIGHT - MARGIN_Y - UNIT_FONT_HEIGHT;
+				int startY = stopY - (int) (listData.get(count).number * mRate);
 				canvas.drawRect(startX, startY, stopX, stopY, paintBar);
 
-				canvas.drawText("300", startX, stopY + UNIT_FONT_HEIGHT,
-						paintText);
+				canvas.drawText(listData.get(count).number + "", startX
+						+ barWidth / 2, startY - UNIT_FONT_HEIGHT_FIX,
+						mPaintText);
+
+				canvas.drawText(listData.get(count).type,
+						startX + barWidth / 2, stopY + UNIT_FONT_HEIGHT,
+						mPaintText);
 			}
 		}
 
-		public void setUnit(String unit) {
-			synchronized (mSurfaceHolder) {
-				mUnit = unit;
+		private int getIntervaleVerticalScale(int maxValue) {
+			int num1 = maxValue / (HORIZONTAL_LINE_COUNT - 1);
+			int num2 = 0;
+			String maxPos = (num1 + "").substring(0, 1);
+			String newNumStr = "";
+			boolean shouldPlus = false;
+			for (int i = 0; i < (num1 + "").length() - 1; i++) {
+				newNumStr += "0";
+				if (i > 0 && (num1 + "").substring(i, i + 1).compareTo("0") > 0) {
+					shouldPlus = true;
+				}
 			}
+			if (shouldPlus) {
+				maxPos = (Integer.parseInt(maxPos) + 1) + "";
+			}
+			num2 = Integer.parseInt(maxPos + newNumStr);
+
+			return num2;
 		}
 
 	}
@@ -179,19 +225,21 @@ class GraphicalView extends SurfaceView implements SurfaceHolder.Callback {
 		super(context);
 	}
 
-	public GraphicalView(Context context, AttributeSet attrs) {
+	public GraphicalView(Context context, AttributeSet attrs, String unit,
+			LinkedList<StatisticsMessage> listData) {
 		super(context, attrs);
 		// register our interest in hearing about changes to our surface
 		SurfaceHolder holder = getHolder();
 		holder.addCallback(this);
 
 		// create thread only; it's started in surfaceCreated()
-		thread = new LunarThread(holder, context, new Handler() {
-			@Override
-			public void handleMessage(Message m) {
+		thread = new LunarThread(holder, context, unit, listData,
+				new Handler() {
+					@Override
+					public void handleMessage(Message m) {
 
-			}
-		});
+					}
+				});
 	}
 
 	@Override
@@ -220,10 +268,6 @@ class GraphicalView extends SurfaceView implements SurfaceHolder.Callback {
 			} catch (InterruptedException e) {
 			}
 		}
-	}
-
-	public void setUnit(String unit) {
-		thread.setUnit(unit);
 	}
 
 	private void log(String msg) {
